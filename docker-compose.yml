@@ -1,0 +1,32 @@
+services:
+  backend:
+    build: .
+    container_name: mini-lib-backendnp
+    ports:
+      - '${PORT}:${PORT}'
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - PORT=${PORT}
+    env_file:
+      - .env
+
+  mongodb:
+    image: mongo:6
+    container_name: mini-lib-mongodb
+    restart: always
+    ports:
+      - '27017:27017'
+    healthcheck:
+      test: ['CMD', 'mongo', '--eval', 'db.stats().ok']
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
