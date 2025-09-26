@@ -59,6 +59,20 @@ export class BookService {
     }
   }
 
+  async updateCover(id: string, filename: string) {
+    try {
+      if (!Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid id');
+      const book = await this.bookRepository.update(id, { cover: filename });
+      if (!book) throw new NotFoundException('Book not found');
+      return book;
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error('Error updating user', { cause: error });
+    }
+  }
+
   async remove(id: string) {
     try {
       if (!Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid id');
