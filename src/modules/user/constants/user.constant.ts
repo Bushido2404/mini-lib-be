@@ -1,4 +1,3 @@
-// src/modules/user/constants/user.constants.ts
 export const UserRole = {
   USER: 'USER',
   ADMIN: 'ADMIN',

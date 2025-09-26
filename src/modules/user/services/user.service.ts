@@ -1,36 +1,73 @@
-// src/modules/user/services/user.service.ts
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from '../repositories/user.repository';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class UserService {
   constructor(private userRepository: UserRepository) {}
 
   async create(createUserDto: CreateUserDto) {
-    return this.userRepository.create(createUserDto);
+    try {
+      const isExist = await this.userRepository.findByUsername(createUserDto.username);
+      if (isExist) throw new BadRequestException('User already exists');
+      return this.userRepository.create(createUserDto);
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error('Error creating user', { cause: error });
+    }
   }
 
   async findAll() {
-    return this.userRepository.findAll();
+    try {
+      return this.userRepository.findAll();
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error('Error updating user', { cause: error });
+    }
   }
 
   async findOne(id: string) {
+    if (!Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid id');
     const user = await this.userRepository.findById(id);
-    if (!user) throw new Error('User not found');
+    if (!user) throw new NotFoundException('User not found');
     return user;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.update(id, updateUserDto);
-    if (!user) throw new Error('User not found');
-    return user;
+    try {
+      if (!Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid id');
+      if (updateUserDto.username) {
+        const existingUser = await this.userRepository.findByUsername(updateUserDto.username);
+        if (existingUser) throw new BadRequestException('User with this username already exists');
+      }
+      const user = await this.userRepository.update(id, updateUserDto);
+      if (!user) throw new NotFoundException('User not found');
+      return user;
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error('Error updating user', { cause: error });
+    }
   }
 
   async remove(id: string) {
-    const user = await this.userRepository.delete(id);
-    if (!user) throw new Error('User not found');
-    return user;
+    try {
+      if (!Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid id');
+      const user = await this.userRepository.delete(id);
+      if (!user) throw new NotFoundException('User not found');
+      return user;
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error('Error updating user', { cause: error });
+    }
   }
 }
