@@ -3,6 +3,7 @@ import { UserRepository } from '../repositories/user.repository';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { Types } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -12,7 +13,8 @@ export class UserService {
     try {
       const isExist = await this.userRepository.findByUsername(createUserDto.username);
       if (isExist) throw new BadRequestException('User already exists');
-      return this.userRepository.create(createUserDto);
+      const hashPassword = await bcrypt.hash(createUserDto.password, 10);
+      return this.userRepository.create({ ...createUserDto, password: hashPassword });
     } catch (error) {
       if (error instanceof BadRequestException || error instanceof NotFoundException) {
         throw error;
@@ -35,6 +37,12 @@ export class UserService {
   async findOne(id: string) {
     if (!Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid id');
     const user = await this.userRepository.findById(id);
+    if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
+
+  async findOneByUsername(username: string) {
+    const user = await this.userRepository.findByUsername(username);
     if (!user) throw new NotFoundException('User not found');
     return user;
   }
