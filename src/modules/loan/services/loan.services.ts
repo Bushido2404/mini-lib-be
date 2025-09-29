@@ -27,8 +27,6 @@ export class LoanService {
       if (loan.patronId && loan.bookId) {
         const patron = loan.patronId as any;
         const book = loan.bookId as any;
-        console.log(patron.email);
-        console.log('test');
         await this.queueService.sendEmail({
           to: patron.email || 'no-email@example.com',
           subject: 'Konfirmasi Peminjaman Buku',
@@ -71,6 +69,15 @@ export class LoanService {
         throw error;
       }
       throw new Error('Error fetching loan', { cause: error });
+    }
+  }
+
+  async findUnreturnedLoans() {
+    try {
+      const loans = await this.loanRepository.findAll();
+      return loans.filter(loan => !loan.returnDate); // Filter loan yang belum dikembalikan
+    } catch (error) {
+      throw new Error('Error fetching unreturned loans', { cause: error });
     }
   }
 

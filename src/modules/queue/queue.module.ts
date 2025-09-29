@@ -2,8 +2,7 @@ import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { QueueService } from './services/queue.service';
 import { EmailProcessor } from './processors/email.processor';
-import { MailModule } from 'src/infrastructure/mail.module';
-
+import { MailerService } from '../../infrastructure/mail/mailer.service';
 @Module({
   imports: [
     BullModule.registerQueue({
@@ -13,9 +12,8 @@ import { MailModule } from 'src/infrastructure/mail.module';
         port: 6379,
       },
     }),
-    MailModule,
   ],
-  providers: [QueueService, EmailProcessor],
+  providers: [QueueService, EmailProcessor, MailerService],
   exports: [QueueService],
 })
 export class QueueModule {}
