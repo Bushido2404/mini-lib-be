@@ -2,11 +2,15 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { LoanRepository } from '../repositories/loan.repository';
 import { CreateLoanDto } from '../dto/create-loan.dto';
 import { UpdateLoanDto } from '../dto/update-loan.dto';
+import { QueueService } from '../../queue/services/queue.service';
 import { Types } from 'mongoose';
 
 @Injectable()
 export class LoanService {
-  constructor(private loanRepository: LoanRepository) {}
+  constructor(
+    private loanRepository: LoanRepository,
+    private queueService: QueueService
+  ) {}
 
   async create(createLoanDto: CreateLoanDto) {
     try {
@@ -15,7 +19,24 @@ export class LoanService {
       }
       const isExist = await this.loanRepository.findByPatronAndBook(createLoanDto.patronId, createLoanDto.bookId);
       if (isExist) throw new BadRequestException('Loan already exists');
-      return this.loanRepository.create(createLoanDto);
+
+      const loan = await this.loanRepository.create(createLoanDto);
+      if (!loan) throw new Error('Failed to create loan');
+
+      // Kirim email konfirmasi peminjaman via queue
+      if (loan.patronId && loan.bookId) {
+        const patron = loan.patronId as any;
+        const book = loan.bookId as any;
+        console.log(patron.email);
+        console.log('test');
+        await this.queueService.sendEmail({
+          to: patron.email || 'no-email@example.com',
+          subject: 'Konfirmasi Peminjaman Buku',
+          body: `Selamat! ${patron.firstName} berhasil meminjam buku "${book.title || 'Unknown'}"`,
+        });
+      }
+
+      return loan;
     } catch (error) {
       if (error instanceof BadRequestException || error instanceof NotFoundException) {
         throw error;

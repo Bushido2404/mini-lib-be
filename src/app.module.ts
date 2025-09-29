@@ -7,8 +7,10 @@ import { BookModule } from './modules/book/book.module';
 import { PatronModule } from './modules/patron/patron.module';
 import { LoanModule } from './modules/loan/loan.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { QueueModule } from './modules/queue/queue.module';
+
 @Module({
-  imports: [DatabaseModule, UserModule, AuthModule, BookModule, PatronModule, LoanModule],
+  imports: [DatabaseModule, UserModule, AuthModule, BookModule, PatronModule, LoanModule, QueueModule],
   controllers: [AppController],
   providers: [AppService],
 })
