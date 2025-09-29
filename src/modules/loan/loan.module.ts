@@ -4,9 +4,10 @@ import { LoanController } from './controllers/loan.controller';
 import { LoanService } from './services/loan.services';
 import { LoanRepository } from './repositories/loan.repository';
 import { BorrowingRecord, BorrowingRecordSchema } from './schemas/borrowing-record.schema';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: BorrowingRecord.name, schema: BorrowingRecordSchema }])],
+  imports: [AuthModule, MongooseModule.forFeature([{ name: BorrowingRecord.name, schema: BorrowingRecordSchema }])],
   controllers: [LoanController],
   providers: [LoanService, LoanRepository],
 })

@@ -4,9 +4,10 @@ import { BookController } from './controllers/book.controller';
 import { BookService } from './services/book.services';
 import { BookRepository } from './repositories/book.repository';
 import { Book, BookSchema } from './schemas/book.schema';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Book.name, schema: BookSchema }])],
+  imports: [AuthModule, MongooseModule.forFeature([{ name: Book.name, schema: BookSchema }])],
   controllers: [BookController],
   providers: [BookService, BookRepository],
 })

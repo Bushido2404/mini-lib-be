@@ -4,9 +4,9 @@ import { PatronController } from './controllers/patron.controller';
 import { PatronService } from './services/patron.services';
 import { PatronRepository } from './repositories/patron.repository';
 import { Patron, PatronSchema } from './schemas/patron.schema';
-
+import { AuthModule } from '../auth/auth.module';
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Patron.name, schema: PatronSchema }])],
+  imports: [AuthModule, MongooseModule.forFeature([{ name: Patron.name, schema: PatronSchema }])],
   controllers: [PatronController],
   providers: [PatronService, PatronRepository],
 })
