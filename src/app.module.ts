@@ -8,9 +8,21 @@ import { PatronModule } from './modules/patron/patron.module';
 import { LoanModule } from './modules/loan/loan.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { QueueModule } from './modules/queue/queue.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { InfrastructureModule } from './infrastructure/infrastructure.module';
 
 @Module({
-  imports: [DatabaseModule, UserModule, AuthModule, BookModule, PatronModule, LoanModule, QueueModule],
+  imports: [
+    ScheduleModule.forRoot(),
+    DatabaseModule,
+    UserModule,
+    AuthModule,
+    BookModule,
+    PatronModule,
+    LoanModule,
+    QueueModule,
+    InfrastructureModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
